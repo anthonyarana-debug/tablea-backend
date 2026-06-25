@@ -9,6 +9,7 @@ import { initMQTT, getMQTTStatus } from "./mqtt/client";
 import { addClient, removeClient } from "./ws/manager";
 import mensajesRoute from "./routes/mensajes";
 import perfilRoute from "./routes/perfil";
+import insightsRoute from "./routes/insights";
 
 const app = new Hono();
 const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app });
@@ -20,6 +21,7 @@ app.get("/", (c) => c.json({ proyecto: "TablEA Backend", version: "1.0.0" }));
 app.get("/status", (c) => c.json({ ok: true, timestamp: new Date().toISOString(), mqtt: getMQTTStatus() }));
 app.route("/mensaje", mensajesRoute);
 app.route("/perfil", perfilRoute);
+app.route("/insights", insightsRoute);
 
 app.get("/ws", upgradeWebSocket(() => ({
   onOpen(_, ws) {
@@ -47,7 +49,7 @@ async function main() {
   const dbOk = await testConnection();
   if (!dbOk) { console.error("❌ Error PostgreSQL"); process.exit(1); }
   initMQTT();
-  const server = serve({ fetch: app.fetch, port: PORT });
+  const server = serve({ fetch: app.fetch, port: PORT, hostname: "127.0.0.1" });
   injectWebSocket(server);
   console.log(`✅ Servidor en http://localhost:${PORT}`);
   console.log(`📡 WebSocket en ws://localhost:${PORT}/ws`);
