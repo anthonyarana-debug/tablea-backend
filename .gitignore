@@ -1,5 +1,7 @@
 node_modules/
 .env
 dist/
-drizzle/
-*.db
+build/
+*.log
+bun.lock
+package-lock.json
